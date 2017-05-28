@@ -6,40 +6,62 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Windows.Speech;
 
-public enum ActionType { None, Turn, Color };
-public enum ObjectType { None, Cube, Sphere };
+public enum ActionType { None, Rotate, Color, Bigger, Smaller, Move };
+public enum ObjectType { None, Cube, Sphere, Capsule };
+public enum ColorType { None, Red, Yellow, Blue, Random };
+public enum DirectionType { None, Up, Down, Left, Right };
 public delegate void performActionOnObject(GameObject o);
 
-public class SpeechRecognizer : MonoBehaviour {
+public class SpeechRecognizer : MonoBehaviour
+{
 
-    public GameObject target = null;
-    public string[] keywords = new string[]{"turn", "color", "cube", "sphere"};
+    [SerializeField]
+    public GameObject targetObject = null;
+    [SerializeField]
+    performActionOnObject targetAction = null;
+
+    private string[] actionKeywords = new string[]{
+        "rotate", "color", "bigger", "smaller", "move", //actions
+        "none", "red", "yellow", "blue", "random", //colors
+        "up", "down", "left", "right"}; //directions
+    private string[] objectKeywords = new string[]
+    {
+        "cube", "sphere", "capsule" //objects
+    };
+
     public ConfidenceLevel confidenceLevel = ConfidenceLevel.Low;
 
-    //
+    // Link existing objects in scene
     public GameObject cube;
     public GameObject sphere;
+    public GameObject capsule;
+
     private bool userLoggedIn = false;
     private bool userAuthenticated = false;
     private string userName = "";
     //
+    protected PhraseRecognizer actionPhraseRecognizer;
+    protected PhraseRecognizer objectPhraseRecognizer;
+    protected PhraseRecognizer colorPhraseRecognizer;
+    protected PhraseRecognizer directionPhraseRecognizer;
 
-    protected PhraseRecognizer phraseRecognizer;
     protected DictationRecognizer dictationRecognizer;
     protected string currentWord = "none";
-    [SerializeField]
     protected ActionType action = ActionType.None;
-    [SerializeField]
-    protected ObjectType obj    = ObjectType.None; 
-    performActionOnObject performAction = null;
+    protected ObjectType obj = ObjectType.None;
+    protected ColorType col = ColorType.None;
+    protected DirectionType dir = DirectionType.None;
 
-	// Use this for initialization
-	void Start () {
-        
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    // Use this for initialization
+    void Start()
+    {
+       
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
         if (!userLoggedIn)
         {
             if (System.IO.File.Exists("login.txt"))
@@ -50,47 +72,44 @@ public class SpeechRecognizer : MonoBehaviour {
                 validateUser();
             }
         }
-	}
 
-    private void validateUser()
-    {
-        if (userName.Equals("Patryk") || userName.Equals("Bogna") || userName.Equals("Bartek"))
+        if (userAuthenticated)
         {
-            userAuthenticated = true;
-            Debug.Log("Authenticated user: " + userName);
-            initializeSpeechRecognition();
-        }
-        else
-        {
-            Debug.Log("Username " + userName + " is not valid");
-            userLoggedIn = false;
-        }
-    }
-
-    private void initializeSpeechRecognition()
-    {
-        if (keywords != null && PhraseRecognitionSystem.isSupported)
-        {
-            Debug.Log(PhraseRecognitionSystem.isSupported);
-            /* IMPORTANT - only works in 32bit Editor or Build (bug in Unity/Windows that will not be fixed)
-            dictationRecognizer = new DictationRecognizer();
-            dictationRecognizer.DictationResult     += dictationResultWriteText;
-            dictationRecognizer.DictationComplete   += dictationComplete;
-            dictationRecognizer.DictationError      += dictationError;
-            dictationRecognizer.DictationHypothesis += dictationHypothesis;
-            dictationRecognizer.Start(); */
-            phraseRecognizer = new KeywordRecognizer(keywords, confidenceLevel);
-            phraseRecognizer.OnPhraseRecognized += onPhraseRecognized;
-            phraseRecognizer.Start();
-            Debug.Log(PhraseRecognitionSystem.Status);
-        }
-        else
-        {
-            if (!PhraseRecognitionSystem.isSupported)
+            if (targetAction != null && targetObject != null)
             {
-                Debug.Log("Phrase Recognition seems to be not supported by your system. Please use Windows 10 and change your language settings to English.");
+                bool actionPerformed = false;
+                //check for 3 word command - currently only color and move
+                if (action == ActionType.Color && col != ColorType.None)
+                {
+                    Debug.Log("Performing " + action + " on object: " + obj + " with color " + col);
+                    targetAction(targetObject);
+                    actionPerformed = true;
+                }
+                else if (action == ActionType.Move && dir != DirectionType.None)
+                {
+                    Debug.Log("Performing " + action + " on object: " + obj + " with direction " + dir);
+                    targetAction(targetObject);
+                    actionPerformed = true;
+                }
+
+                if (action != ActionType.Color && action != ActionType.Move)
+                {
+                    Debug.Log("Performing action: " + action + " on object: " + obj);
+                    targetAction(targetObject);
+                    actionPerformed = true;
+                }
+
+                if (actionPerformed)
+                {
+                    targetAction = null;
+                    targetObject = null;
+                    action = ActionType.None;
+                    obj = ObjectType.None;
+                    col = ColorType.None;
+                    dir = DirectionType.None;
+                }
             }
-        }
+        } 
     }
 
     private void readUserFromFile()
@@ -113,28 +132,72 @@ public class SpeechRecognizer : MonoBehaviour {
         userName = line;
     }
 
-    private void onPhraseRecognized(PhraseRecognizedEventArgs args)
+    private void validateUser()
+    {
+        if (userName.Equals("Patryk") || userName.Equals("Bogna") || userName.Equals("Bartek"))
+        {
+            userAuthenticated = true;
+            Debug.Log("Authenticated user: " + userName);
+            initializeSpeechRecognition();
+        }
+        else
+        {
+            Debug.Log("Username " + userName + " is not valid");
+            userLoggedIn = false;
+        }
+    }
+
+    private void initializeSpeechRecognition()
+    {
+        if (actionKeywords != null && PhraseRecognitionSystem.isSupported)
+        {
+            Debug.Log(PhraseRecognitionSystem.isSupported);
+            /* IMPORTANT - only works in 32bit Editor or Build (bug in Unity/Windows that will not be fixed)
+            dictationRecognizer = new DictationRecognizer();
+            dictationRecognizer.DictationResult     += dictationResultWriteText;
+            dictationRecognizer.DictationComplete   += dictationComplete;
+            dictationRecognizer.DictationError      += dictationError;
+            dictationRecognizer.DictationHypothesis += dictationHypothesis;
+            dictationRecognizer.Start(); */
+            actionPhraseRecognizer = new KeywordRecognizer(actionKeywords, confidenceLevel);
+            actionPhraseRecognizer.OnPhraseRecognized += onPhraseRecognizedAction;
+            actionPhraseRecognizer.Start();
+
+            objectPhraseRecognizer = new KeywordRecognizer(objectKeywords, confidenceLevel);
+            objectPhraseRecognizer.OnPhraseRecognized += onPhraseRecognizedObject;
+            objectPhraseRecognizer.Start();
+
+            Debug.Log(PhraseRecognitionSystem.Status);
+        }
+        else
+        {
+            if (!PhraseRecognitionSystem.isSupported)
+            {
+                Debug.Log("Phrase Recognition seems to be not supported by your system. Please use Windows 10 and change your language settings to English.");
+            }
+        }
+    }
+
+    private void onPhraseRecognizedAction(PhraseRecognizedEventArgs args)
     {
         currentWord = args.text;
         //object = args.text....
-
         processActionName();
-        processObjectName();
+        processColorName();
+        processDirectionName();
 
         Debug.Log("Current word: " + currentWord +
             "| Current object: " + obj +
             ", current action: " + action);
+    }
 
-        if (performAction != null && target != null)
-        {
-            Debug.Log("Performing action: " + action + " on object: " + obj);
-            performAction(target);
-            //reset the phrase
-            performAction = null;
-            action = ActionType.None;
-            target = null;
-            obj = ObjectType.None;
-        }
+    private void onPhraseRecognizedObject(PhraseRecognizedEventArgs args)
+    {
+        processObjectName(args.text);
+
+        Debug.Log("Current word: " + args.text +
+            "| Current object: " + obj +
+            ", current action: " + action);
     }
 
     #region PhraseProcessor
@@ -143,13 +206,25 @@ public class SpeechRecognizer : MonoBehaviour {
     {
         switch (currentWord)
         {
-            case "turn":
-                action = ActionType.Turn;
-                performAction = rotateObject;
+            case "rotate":
+                action = ActionType.Rotate;
+                targetAction = rotateObject;
                 break;
             case "color":
                 action = ActionType.Color;
-                performAction = changeColor;
+                targetAction = changeColor;
+                break;
+            case "bigger":
+                action = ActionType.Bigger;
+                targetAction = makeBigger;
+                break;
+            case "smaller":
+                action = ActionType.Smaller;
+                targetAction = makeSmaller;
+                break;
+            case "move":
+                action = ActionType.Move;
+                targetAction = moveObject;
                 break;
             default:
                 //action = ActionType.None;
@@ -158,21 +233,69 @@ public class SpeechRecognizer : MonoBehaviour {
         }
     }
 
-    private void processObjectName()
+    private void processObjectName(string text)
     {
-        switch (currentWord)
+        switch (text)
         {
             case "cube":
                 obj = ObjectType.Cube;
-                target = cube;
+                targetObject = cube;
                 break;
             case "sphere":
                 obj = ObjectType.Sphere;
-                target = sphere;
+                targetObject = sphere;
+                break;
+            case "capsule":
+                obj = ObjectType.Capsule;
+                targetObject = capsule;
                 break;
             default:
                 //obj = ObjectType.None;
                 //target = null;
+                break;
+        }
+    }
+
+    private void processColorName()
+    {
+        switch (currentWord)
+        {
+            case "none":
+                col = ColorType.None;
+                break;
+            case "red":
+                col = ColorType.Red;
+                break;
+            case "blue":
+                col = ColorType.Blue;
+                break;
+            case "yellow":
+                col = ColorType.Yellow;
+                break;
+            case "random":
+                col = ColorType.Random;
+                break;
+        }
+
+    }
+
+    private void processDirectionName()
+    {
+        switch (currentWord)
+        {
+            case "up":
+                dir = DirectionType.Up;
+                break;
+            case "down":
+                dir = DirectionType.Down;
+                break;
+            case "left":
+                dir = DirectionType.Left;
+                break;
+            case "right":
+                dir = DirectionType.Right;
+                break;
+            default:
                 break;
         }
     }
@@ -183,12 +306,71 @@ public class SpeechRecognizer : MonoBehaviour {
 
     private void rotateObject(GameObject o)
     {
-        o.transform.Rotate(new Vector3(0,0,45.0f));
+        o.transform.Rotate(new Vector3(0, 0, 45.0f));
     }
 
     private void changeColor(GameObject o)
     {
-        o.GetComponent<Renderer>().material.color = Color.red;
+        Color32 c = new Color32();
+
+        switch (col)
+        {
+            case ColorType.None:
+                c = Color.gray;
+                break;
+            case ColorType.Random:
+                c = new Color32(
+                    255);
+                break;
+            case ColorType.Yellow:
+                c = Color.yellow;
+                break;
+            case ColorType.Red:
+                c = Color.red;
+                break;
+            case ColorType.Blue:
+                c = Color.blue;
+                break;
+            default:
+                break;
+        }
+
+        o.GetComponent<Renderer>().material.color = c;
+    }
+
+    private void makeBigger(GameObject o)
+    {
+        o.transform.localScale = new Vector3(o.transform.localScale.x + 0.25f,
+                                             o.transform.localScale.y + 0.25f,
+                                             o.transform.localScale.z + 0.25f);
+    }
+
+    private void makeSmaller(GameObject o)
+    {
+        o.transform.localScale = new Vector3(o.transform.localScale.x - 0.25f,
+                                             o.transform.localScale.y - 0.25f,
+                                             o.transform.localScale.z - 0.25f);
+    }
+
+    private void moveObject(GameObject o)
+    {
+        switch (dir)
+        {
+            case DirectionType.Up:
+                o.transform.Translate(0, 1, 0);
+                break;
+            case DirectionType.Down:
+                o.transform.Translate(0, -1, 0);
+                break;
+            case DirectionType.Left:
+                o.transform.Translate(-1, 0, 0);
+                break;
+            case DirectionType.Right:
+                o.transform.Translate(1, 0, 0);
+                break;
+            default:
+                break;
+        }
     }
 
     /// For dictation
@@ -217,9 +399,10 @@ public class SpeechRecognizer : MonoBehaviour {
 
     private void OnApplicationQuit()
     {
-        if(phraseRecognizer != null && phraseRecognizer.IsRunning)
+        if (actionPhraseRecognizer != null && actionPhraseRecognizer.IsRunning)
         {
-            phraseRecognizer.Stop();
+            actionPhraseRecognizer.Stop();
+            objectPhraseRecognizer.Stop();
         }
         if (dictationRecognizer != null)
         {
