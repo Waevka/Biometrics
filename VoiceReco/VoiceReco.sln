@@ -1,7 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceReco.Plugins", "VoiceReco.Plugins.csproj", "{0C8ED2F6-1113-3243-64C9-9711E73D1085}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceReco", "VoiceReco.csproj", "{C57E2F63-FDD4-2B13-1312-AF8F45F79CE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceReco.Editor.Plugins", "VoiceReco.Editor.Plugins.csproj", "{9BCE6523-83B0-94B7-B2C2-BF2DD0E39B40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceReco.Editor", "VoiceReco.Editor.csproj", "{3B3A83E2-8668-36D7-A36B-87DB2A3CB3C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +15,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C8ED2F6-1113-3243-64C9-9711E73D1085}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C8ED2F6-1113-3243-64C9-9711E73D1085}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C8ED2F6-1113-3243-64C9-9711E73D1085}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C8ED2F6-1113-3243-64C9-9711E73D1085}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C57E2F63-FDD4-2B13-1312-AF8F45F79CE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C57E2F63-FDD4-2B13-1312-AF8F45F79CE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C57E2F63-FDD4-2B13-1312-AF8F45F79CE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C57E2F63-FDD4-2B13-1312-AF8F45F79CE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BCE6523-83B0-94B7-B2C2-BF2DD0E39B40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BCE6523-83B0-94B7-B2C2-BF2DD0E39B40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BCE6523-83B0-94B7-B2C2-BF2DD0E39B40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BCE6523-83B0-94B7-B2C2-BF2DD0E39B40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B3A83E2-8668-36D7-A36B-87DB2A3CB3C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B3A83E2-8668-36D7-A36B-87DB2A3CB3C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B3A83E2-8668-36D7-A36B-87DB2A3CB3C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B3A83E2-8668-36D7-A36B-87DB2A3CB3C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
