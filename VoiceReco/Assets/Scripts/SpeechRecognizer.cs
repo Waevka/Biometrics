@@ -320,6 +320,9 @@ public class SpeechRecognizer : MonoBehaviour
                 break;
             case ColorType.Random:
                 c = new Color32(
+                    (byte)UnityEngine.Random.Range(0, 255),
+                    (byte)UnityEngine.Random.Range(0, 255),
+                    (byte)UnityEngine.Random.Range(0, 255),
                     255);
                 break;
             case ColorType.Yellow:
