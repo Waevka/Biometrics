@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Windows.Speech;
 
 public enum ActionType { None, Rotate, Color, Bigger, Smaller, Move };
@@ -35,6 +36,11 @@ public class SpeechRecognizer : MonoBehaviour
     public GameObject cube;
     public GameObject sphere;
     public GameObject capsule;
+
+    public Text usernameText;
+    public Text authenticatedText;
+    public GameObject disablePanel;
+    public GameObject instructions;
 
     private bool userLoggedIn = false;
     private bool userAuthenticated = false;
@@ -134,16 +140,20 @@ public class SpeechRecognizer : MonoBehaviour
 
     private void validateUser()
     {
-        if (userName.Equals("Patryk") || userName.Equals("Bogna") || userName.Equals("Bartek"))
+        if (userName.Equals("Patryk") || userName.Equals("Bogna") || userName.Equals("Bartek") || userName.Equals("Karolina"))
         {
             userAuthenticated = true;
             Debug.Log("Authenticated user: " + userName);
+            authenticatedText.text = "Yes";
+            disablePanel.SetActive(false);
+            instructions.SetActive(true);
             initializeSpeechRecognition();
         }
         else
         {
             Debug.Log("Username " + userName + " is not valid");
             userLoggedIn = false;
+            usernameText.text = userName;
         }
     }
 
