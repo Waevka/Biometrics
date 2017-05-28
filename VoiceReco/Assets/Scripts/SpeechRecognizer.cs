@@ -75,12 +75,14 @@ public class SpeechRecognizer : MonoBehaviour {
             }
         }
 
+        FMOD.RESULT result;
         FMOD.Studio.System system;
         FMOD.Studio.System.create(out system);
         FMOD.System lowsystem;
         system.getLowLevelSystem(out lowsystem);
+        lowsystem.init(10, FMOD.INITFLAGS.NORMAL, System.IntPtr.Zero);
         FMOD.Sound sound;
-        lowsystem.createStream("atari.wav", FMOD.MODE.DEFAULT, out sound);
+        result = lowsystem.createStream("Assets/atari.wav", FMOD.MODE.DEFAULT, out sound);
 
         float freq;
         int priority = 0;
@@ -95,7 +97,7 @@ public class SpeechRecognizer : MonoBehaviour {
         sound.getLength(out lenPcm, FMOD.TIMEUNIT.PCM);
         sound.getLength(out lenPcmBytes, FMOD.TIMEUNIT.PCMBYTES);
 
-        Debug.Log(freq.ToString() + " " + priority.ToString() + " " + format.ToString() + " " + sound.ToString() + " " + bits.ToString());
+        Debug.Log(result.ToString() + " " +freq.ToString() + " " + priority.ToString() + " " + format.ToString() + " " + sound.ToString() + " " + bits.ToString());
 
     }
 	
