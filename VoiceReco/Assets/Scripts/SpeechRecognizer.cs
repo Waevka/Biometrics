@@ -41,6 +41,8 @@ public class SpeechRecognizer : MonoBehaviour
     public Text authenticatedText;
     public GameObject disablePanel;
     public GameObject instructions;
+    public Text lastCommand;
+    //
 
     private bool userLoggedIn = false;
     private bool userAuthenticated = false;
@@ -65,8 +67,7 @@ public class SpeechRecognizer : MonoBehaviour
 
     }
 
-    // Update is called once per frame
-    void Update()
+    private void FixedUpdate()
     {
         if (!userLoggedIn)
         {
@@ -78,6 +79,11 @@ public class SpeechRecognizer : MonoBehaviour
                 validateUser();
             }
         }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
 
         if (userAuthenticated)
         {
@@ -145,6 +151,7 @@ public class SpeechRecognizer : MonoBehaviour
             userAuthenticated = true;
             Debug.Log("Authenticated user: " + userName);
             authenticatedText.text = "Yes";
+            usernameText.text = userName;
             disablePanel.SetActive(false);
             instructions.SetActive(true);
             initializeSpeechRecognition();
@@ -191,6 +198,7 @@ public class SpeechRecognizer : MonoBehaviour
     private void onPhraseRecognizedAction(PhraseRecognizedEventArgs args)
     {
         currentWord = args.text;
+        lastCommand.text = args.text;
         //object = args.text....
         processActionName();
         processColorName();
@@ -204,7 +212,7 @@ public class SpeechRecognizer : MonoBehaviour
     private void onPhraseRecognizedObject(PhraseRecognizedEventArgs args)
     {
         processObjectName(args.text);
-
+        lastCommand.text = args.text;
         Debug.Log("Current word: " + args.text +
             "| Current object: " + obj +
             ", current action: " + action);
